@@ -1,0 +1,333 @@
+<view class="zl">
+  <!-- 顶部：自定义导航（右侧给微信胶囊留位置） -->
+  <view class="nav" style="padding-top: {{navTop}}px;">
+    <view class="nav-row" style="height: {{navHeight}}px; padding-right: {{capsuleSpace}}px;">
+      <view class="back" bindtap="onBack" hover-class="hover" aria-role="button" aria-label="返回游戏大厅">‹</view>
+      <block wx:if="{{screen === 'game' && bar}}">
+        <view class="flag sm f-{{bar.owner}}"><text>{{bar.mark}}</text></view>
+        <text class="nav-name brush">{{bar.name}}</text>
+        <text class="nav-date">{{bar.date}}</text>
+      </block>
+      <text wx:else class="nav-title">逐鹿三国</text>
+    </view>
+  </view>
+
+  <!-- 开场：选君主 -->
+  <scroll-view wx:if="{{screen === 'title'}}" class="title-screen" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+    <view class="ts" style="padding-bottom: {{safeBottom + 28}}px;">
+      <view class="ts-logo"><text class="ts-name brush">逐鹿</text><view class="ts-seal brush"><text>三</text><text>国</text></view></view>
+      <text class="ts-sub">{{title.scenario}} · 建安五年</text>
+      <text class="ts-intro">{{title.intro}}</text>
+      <view wx:if="{{title.resume}}" class="resume f-{{title.resume.owner}}">
+        <view class="flag md"><text>{{title.resume.mark}}</text></view>
+        <view class="resume-what"><text class="resume-name brush">{{title.resume.name}}</text><text class="small dim">{{title.resume.info}}</text></view>
+        <view class="btn primary" bindtap="onAct" data-act="resume" hover-class="hover">继续上次</view>
+      </view>
+      <view class="sec-h"><text class="eyebrow">择一明主</text><text class="sub">{{title.resume ? '开新局会覆盖上面的存档' : '难度：易 · 中 · 难'}}</text></view>
+      <view class="lords">
+        <view wx:for="{{title.lords}}" wx:key="id" class="lord f-{{item.id}}" bindtap="onAct" data-act="start" data-id="{{item.id}}" hover-class="lord-hover">
+          <view class="lord-top"><view class="flag"><text>{{item.mark}}</text></view><text class="lord-name brush">{{item.name}}</text><text class="pill tone-{{item.tone}}">{{item.level}}</text></view>
+          <text class="lord-facts">{{item.facts}}</text>
+          <text class="lord-blurb">{{item.blurb}}</text>
+        </view>
+      </view>
+      <view class="ts-rules">
+        <view class="rule"><text class="rule-h">一季一令</text><text class="rule-t">每季给每位武将下一道命令：开发、征兵、训练、出征、登用、外交。</text></view>
+        <view class="rule"><text class="rule-h">先得 {{title.need}} 城者胜</text><text class="rule-t">天下共 {{title.all}} 城。攻下相邻的城池扩张地盘，丢光城池即告失败。</text></view>
+        <view class="rule"><text class="rule-h">军师进言</text><text class="rule-t">看不清局势时，先读军师的建议：哪里缺粮，哪里可取，谁可招揽。</text></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 对局 -->
+  <block wx:else>
+    <view class="bar">
+      <view class="res"><text class="res-k">城池</text><text class="res-v">{{bar.cities}}<text class="res-small"> / {{bar.target}}</text></text></view>
+      <view class="res"><text class="res-k">兵力</text><text class="res-v">{{bar.troops}}</text></view>
+      <view class="res"><text class="res-k">金</text><text class="res-v">{{bar.gold}}</text></view>
+      <view class="res"><text class="res-k">粮</text><text class="res-v">{{bar.food}}</text></view>
+      <view class="btn primary end-btn" bindtap="onAct" data-act="end" hover-class="hover"><text>结束本季</text><text class="end-sub">{{bar.idle}}</text></view>
+    </view>
+
+    <view class="board" style="height: {{boardH}}px;">
+      <scroll-view class="mapscroll" scroll-x="{{true}}" scroll-y="{{true}}" scroll-left="{{scrollLeft}}" scroll-top="{{scrollTop}}" scroll-with-animation="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}" bounces="{{false}}">
+        <view class="mapbox" style="width: {{mapW}}px; height: {{mapH}}px;">
+          <image wx:if="{{mapImg}}" class="mapimg" src="{{mapImg}}" style="width: {{mapW}}px; height: {{mapH}}px;" />
+          <view class="cartouche brush"><text>建</text><text>安</text><text>舆</text><text>图</text></view>
+          <view class="map-seal brush"><text>逐</text><text>鹿</text></view>
+          <text wx:for="{{labels}}" wx:key="text" class="lbl lbl-{{item.kind}}" style="left: {{item.left}}px; top: {{item.top}}px; transform: translate(-50%, -50%) rotate({{item.rot}}deg);">{{item.text}}</text>
+          <view wx:for="{{cities}}" wx:key="id" class="city f-{{item.owner}} {{item.sel ? 'sel' : ''}} {{item.target ? 'target' : ''}} {{item.picked ? 'picked' : ''}} {{item.from ? 'from' : ''}}" style="left: {{item.left}}px; top: {{item.top}}px;" bindtap="onCity" data-id="{{item.id}}">
+            <view class="ring"></view>
+            <view wx:if="{{item.seat}}" class="seat"></view>
+            <view class="wall"><text class="mk brush">{{item.mark}}</text></view>
+            <text class="nm">{{item.name}}</text>
+            <text class="tp">{{item.troops}}</text>
+            <view wx:if="{{item.idle}}" class="idle">{{item.idle}}</view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <scroll-view class="panel" scroll-y="{{true}}" scroll-top="{{panelTop}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+      <view class="panel-in" style="padding-bottom: {{safeBottom + 24}}px;">
+
+        <!-- 总览 -->
+        <block wx:if="{{panel.view === 'overview'}}">
+          <view class="advisor">
+            <view class="adv-who">
+              <view wx:if="{{panel.advisor}}" class="chop brush">{{panel.advisor.seal}}</view>
+              <view class="adv-t"><text class="eyebrow seal-c">军师进言</text><text class="adv-name brush">{{panel.advisor.name}}</text></view>
+            </view>
+            <view wx:for="{{panel.tips}}" wx:key="text" class="tip" bindtap="onAct" data-act="tip" data-id="{{item.city}}" hover-class="{{item.city ? 'tip-hover' : 'none'}}">
+              <view class="tip-dot"></view><text class="tip-t">{{item.text}}<text wx:if="{{item.city}}" class="tip-go">　前往 ›</text></text>
+            </view>
+          </view>
+
+          <view class="sec">
+            <view class="sec-h"><text class="eyebrow">天下大势</text><text class="sub">先得 {{panel.target}} 城者胜 · 中立 {{panel.neutral}} 城</text></view>
+            <view class="progress"><view class="progress-i" style="width: {{panel.progress}}%;"></view></view>
+            <view class="powers">
+              <view class="pw-row pw-head"><text class="pw-name">势力</text><text class="pw-n">城</text><text class="pw-n">兵</text><text class="pw-rel">关系</text></view>
+              <view wx:for="{{panel.powers}}" wx:key="id" class="pw-row {{item.me ? 'me' : ''}} {{item.dead ? 'dead' : ''}}">
+                <view class="pw-name f-{{item.id}}"><view class="flag xs"><text>{{item.mark}}</text></view><text>{{item.name}}</text></view>
+                <text class="pw-n">{{item.cities}}</text><text class="pw-n">{{item.troops}}</text><text class="pw-rel">{{item.rel}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="sec">
+            <view class="sec-h"><text class="eyebrow">我的城池</text><text class="sub">点城池给武将下令</text></view>
+            <view wx:for="{{panel.mine}}" wx:key="id" class="cityrow" bindtap="onAct" data-act="city" data-id="{{item.id}}" hover-class="row-hover">
+              <view class="cr-top"><text class="cr-name brush">{{item.name}}</text><text class="cr-idle">{{item.idle}}</text></view>
+              <view class="cr-stats"><text>兵 {{item.troops}}</text><text>金 {{item.gold}}</text><text class="{{item.foodLow ? 'tone-bad' : ''}}">粮 {{item.food}}</text><text>将 {{item.gens}}</text></view>
+            </view>
+          </view>
+
+          <view class="foot-links">
+            <view class="btn ghost" bindtap="onAct" data-act="chronicle" hover-class="hover">史册</view>
+            <view class="btn ghost" bindtap="onAct" data-act="menu" hover-class="hover">主菜单</view>
+          </view>
+        </block>
+
+        <!-- 城池 -->
+        <block wx:elif="{{panel.view === 'city'}}">
+          <view class="topline"><text class="link" bindtap="onAct" data-act="home">‹ 总览</text><text wx:if="{{panel.rel}}" class="pill tone-{{panel.rel.tone}}">{{panel.rel.text}}</text></view>
+          <view class="city-h f-{{panel.owner}}"><view class="flag md"><text>{{panel.mark}}</text></view><text class="city-name brush">{{panel.name}}</text><text class="city-owner">{{panel.ownerText}}</text></view>
+          <view class="stats">
+            <view wx:for="{{panel.stats}}" wx:key="k" class="stat">
+              <text class="stat-k">{{item.k}}</text><text class="stat-v">{{item.v}}</text>
+              <view wx:if="{{item.m >= 0}}" class="meter {{item.low ? 'low' : ''}}"><view class="meter-i" style="width: {{item.m}}%;"></view></view>
+            </view>
+          </view>
+
+          <block wx:if="{{panel.mine}}">
+            <text class="hint {{panel.hintWarn ? 'tone-warn' : ''}}">{{panel.hint}}</text>
+            <view class="sec">
+              <view class="sec-h"><text class="eyebrow">武将</text><text class="sub">点武将下令，每人每季一道</text></view>
+              <view wx:if="{{!panel.gens.length}}" class="empty">城中无将，无法下令。可以从相邻的己方城调武将过来。</view>
+              <view wx:for="{{panel.gens}}" wx:key="id" class="gen f-{{item.owner}} {{item.done ? 'done' : ''}} {{item.open ? 'open' : ''}}">
+                <view class="gen-row" bindtap="onAct" data-act="{{item.done ? '' : 'gen'}}" data-id="{{item.id}}" hover-class="{{item.done ? 'none' : 'row-hover'}}">
+                  <view class="avatar brush">{{item.seal}}</view>
+                  <view class="gen-main">
+                    <view class="gname"><text>{{item.name}}</text><text wx:if="{{item.ruler}}" class="pill tone-warn">君主</text></view>
+                    <view class="g4"><text wx:for="{{item.stats}}" wx:for-item="s" wx:key="k" class="{{s.hi ? 'hi' : ''}}"><text class="g4k">{{s.k}}</text>{{s.v}}</text></view>
+                  </view>
+                  <text class="gstat {{item.done ? 'gs-done' : 'gs-ready'}}">{{item.status}}</text>
+                </view>
+                <view wx:if="{{item.open}}" class="cmds">
+                  <view wx:for="{{item.cmds}}" wx:for-item="c" wx:key="id" class="cmd {{c.ok ? '' : 'off'}}" bindtap="onAct" data-act="cmd" data-cmd="{{c.id}}" data-gen="{{item.id}}" data-ok="{{c.ok}}" hover-class="{{c.ok ? 'cmd-hover' : 'none'}}">
+                    <text class="cmd-n">{{c.name}}</text><text class="cmd-s">{{c.sub}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view wx:if="{{panel.people.length}}" class="sec">
+              <view class="sec-h"><text class="eyebrow">城中人物</text><text class="sub">在野贤士与俘虏</text></view>
+              <view wx:for="{{panel.people}}" wx:key="id" class="person f-{{item.owner}}">
+                <view class="avatar brush">{{item.seal}}</view>
+                <view class="gen-main">
+                  <view class="gname"><text>{{item.name}}</text><text class="pill tone-dim">{{item.tag}}</text></view>
+                  <view class="g4"><text wx:for="{{item.stats}}" wx:for-item="s" wx:key="k" class="{{s.hi ? 'hi' : ''}}"><text class="g4k">{{s.k}}</text>{{s.v}}</text></view>
+                </view>
+                <view wx:if="{{panel.canEmploy}}" class="btn ghost sm" bindtap="onAct" data-act="quick-employ" data-id="{{item.id}}" hover-class="hover">登用</view>
+              </view>
+              <text wx:if="{{!panel.canEmploy}}" class="hint">城中武将都已行动，下季再来登用。</text>
+            </view>
+          </block>
+
+          <block wx:else>
+            <view wx:if="{{panel.launch.length}}" class="sec">
+              <text class="eyebrow">出兵</text>
+              <view wx:for="{{panel.launch}}" wx:key="from" class="choice f-{{bar.owner}}" bindtap="onAct" data-act="launch" data-from="{{item.from}}" data-target="{{panel.id}}" hover-class="row-hover">
+                <view class="flag xs"><text>{{bar.mark}}</text></view>
+                <view class="choice-main"><text class="choice-n">{{item.name}}</text><text class="choice-i">{{item.info}}</text></view>
+                <text class="pill tone-{{item.tone}}">{{item.odds}}</text>
+              </view>
+            </view>
+            <text wx:if="{{panel.action}}" class="hint">{{panel.action}}</text>
+            <view class="sec">
+              <text class="eyebrow">守将</text>
+              <view wx:if="{{!panel.gens.length}}" class="empty">{{panel.emptyText}}</view>
+              <view wx:for="{{panel.gens}}" wx:key="id" class="gen f-{{item.owner}}">
+                <view class="gen-row">
+                  <view class="avatar brush">{{item.seal}}</view>
+                  <view class="gen-main">
+                    <view class="gname"><text>{{item.name}}</text><text wx:if="{{item.ruler}}" class="pill tone-warn">君主</text></view>
+                    <view class="g4"><text wx:for="{{item.stats}}" wx:for-item="s" wx:key="k" class="{{s.hi ? 'hi' : ''}}"><text class="g4k">{{s.k}}</text>{{s.v}}</text></view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </block>
+
+          <view class="sec">
+            <text class="eyebrow">邻城</text>
+            <view class="chips">
+              <view wx:for="{{panel.neighbors}}" wx:key="id" class="chip f-{{item.owner}}" bindtap="onAct" data-act="city" data-id="{{item.id}}" hover-class="hover">
+                <view class="dot"></view><text>{{item.name}}</text><text class="chip-i">{{item.info}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <!-- 指令表单 -->
+        <block wx:elif="{{panel.view === 'form'}}">
+          <view class="topline"><text class="link" bindtap="onAct" data-act="cancel">{{panel.back}}</text></view>
+          <view class="form-h"><text class="eyebrow">{{panel.eyebrow}}</text><view class="form-title"><text class="form-name brush">{{panel.general}}</text><text class="form-sub">{{panel.sub}}</text></view></view>
+
+          <block wx:if="{{panel.cmd === 'attack' || panel.cmd === 'move'}}">
+            <view class="sec">
+              <view class="sec-h"><text class="eyebrow">{{panel.cmd === 'attack' ? '攻打哪座城' : '去哪座城'}}</text><text wx:if="{{panel.cmd === 'attack'}}" class="sub">也可以点地图上的红圈</text></view>
+              <view wx:for="{{panel.targets}}" wx:key="id" class="choice f-{{item.owner}} {{item.on ? 'on' : ''}}" bindtap="onAct" data-act="pick" data-id="{{item.id}}">
+                <view class="flag xs"><text>{{item.mark}}</text></view>
+                <view class="choice-main"><text class="choice-n">{{item.name}}</text><text class="choice-i">{{item.info}}</text></view>
+                <text wx:if="{{item.odds}}" class="pill tone-{{item.tone}}">{{item.odds}}</text>
+              </view>
+            </view>
+            <view class="sec">
+              <text class="eyebrow">{{panel.cmd === 'attack' ? '带多少兵' : '随行兵力'}}</text>
+              <view class="range">
+                <slider class="slider" min="{{panel.min}}" max="{{panel.max}}" step="100" value="{{panel.troops}}" bindchanging="onTroops" bindchange="onTroops" activeColor="#C9A066" backgroundColor="#2A393B" block-color="#E3C08A" block-size="22" />
+                <text class="range-v">{{panel.troopsText}}</text>
+              </view>
+              <text class="hint">{{panel.hint}}</text>
+              <text wx:if="{{panel.warn}}" class="hint tone-bad">{{panel.warn}}</text>
+            </view>
+            <view wx:if="{{panel.cmd === 'attack'}}" class="sec">
+              <view class="sec-h"><text class="eyebrow">副将</text><text class="sub">最多两位：武力高能单挑，智力高能用计</text></view>
+              <text wx:if="{{!panel.deputies.length}}" class="hint">城中没有其他待命武将。</text>
+              <view wx:for="{{panel.deputies}}" wx:key="id" class="dep {{item.on ? 'on' : ''}} {{item.off ? 'off' : ''}}" bindtap="onAct" data-act="dep" data-id="{{item.id}}" data-off="{{item.off}}">
+                <view class="box">{{item.on ? '✓' : ''}}</view><text class="dep-n">{{item.name}}</text><text class="dep-i">{{item.info}}</text>
+              </view>
+            </view>
+            <view wx:if="{{panel.cmd === 'attack'}}" class="verdict">
+              <text class="dim">胜算</text>
+              <text class="verdict-v brush tone-{{panel.verdict.tone}}">{{panel.verdict.text}}</text>
+              <view class="verdict-i"><text>攻守战力比 {{panel.verdict.ratio}}</text><text>到 1.6 几乎必克</text></view>
+            </view>
+            <view class="btn primary wide" bindtap="onAct" data-act="confirm" hover-class="hover">{{panel.confirm}}</view>
+          </block>
+
+          <view wx:elif="{{panel.cmd === 'employ'}}" class="sec">
+            <text class="eyebrow">招揽谁</text>
+            <view wx:for="{{panel.people}}" wx:key="id" class="choice f-{{item.owner}}" bindtap="onAct" data-act="employ" data-id="{{item.id}}" hover-class="row-hover">
+              <view class="avatar brush">{{item.seal}}</view>
+              <view class="choice-main"><text class="choice-n">{{item.name}}</text><text class="choice-i">{{item.info}}</text></view>
+              <text class="pill tone-{{item.tone}}">{{item.tag}}</text>
+            </view>
+          </view>
+
+          <block wx:else>
+            <text class="hint">花费金 200。结盟后两年内互不攻伐。有共同的强敌时更容易谈成，刚交过手则很难。</text>
+            <view class="sec">
+              <text class="eyebrow">与谁结盟</text>
+              <view wx:for="{{panel.factions}}" wx:key="id" class="choice f-{{item.id}} {{item.allied ? 'off' : ''}}" bindtap="onAct" data-act="ally" data-id="{{item.id}}" data-allied="{{item.allied}}" hover-class="{{item.allied ? 'none' : 'row-hover'}}">
+                <view class="flag xs"><text>{{item.mark}}</text></view>
+                <view class="choice-main"><text class="choice-n">{{item.name}}</text><text class="choice-i">{{item.info}}</text></view>
+                <text class="pill tone-{{item.tone}}">{{item.tag}}</text>
+              </view>
+            </view>
+          </block>
+        </block>
+      </view>
+    </scroll-view>
+  </block>
+
+  <!-- 画舆图用的画布放在屏幕外，画好后导出成图片显示（避免画布浮在其他内容上面） -->
+  <canvas wx:if="{{screen === 'game'}}" type="2d" id="mapsrc" class="mapsrc" style="width: {{mapW}}px; height: {{mapH}}px;"></canvas>
+
+  <!-- 浮层：战斗 / 战报 / 史册 / 结局 -->
+  <view wx:if="{{modal}}" class="overlay">
+    <view class="scrim" bindtap="onAct" data-act="{{modal.kind === 'battle' || modal.kind === 'over' ? '' : 'close'}}"></view>
+    <view class="modal modal-{{modal.kind}}" catchtap="noop">
+
+      <block wx:if="{{modal.kind === 'battle'}}">
+        <view class="bt-head">
+          <view class="side f-{{modal.atk.owner}}"><view class="flag md"><text>{{modal.atk.mark}}</text></view><view class="side-t"><text class="side-lead brush">{{modal.atk.lead}}</text><text class="side-s">{{modal.atk.side}}</text></view></view>
+          <view class="bt-vs brush">战</view>
+          <view class="side def f-{{modal.def.owner}}"><view class="side-t"><text class="side-lead brush">{{modal.def.lead}}</text><text class="side-s">{{modal.def.side}}</text></view><view class="flag md"><text>{{modal.def.mark}}</text></view></view>
+        </view>
+        <text class="bt-place">{{modal.place}}</text>
+        <view class="forces">
+          <view class="force f-{{modal.atk.owner}}"><text class="force-k">攻方</text><view class="track"><view class="track-i" style="width: {{modal.aw}}%;"></view></view><text class="force-n">{{modal.a}}</text></view>
+          <view class="force f-{{modal.def.owner}}"><text class="force-k">守方</text><view class="track"><view class="track-i" style="width: {{modal.dw}}%;"></view></view><text class="force-n">{{modal.d}}</text></view>
+        </view>
+        <view class="bt-log"><view wx:for="{{modal.log}}" wx:key="index" class="bt-line {{item.kind}}">{{item.text}}</view></view>
+        <view wx:if="{{modal.done}}" class="bt-stamp brush {{modal.win ? '' : 'lose'}}">{{modal.stamp}}</view>
+        <view class="modal-actions">
+          <view wx:if="{{!modal.done}}" class="btn ghost" bindtap="onAct" data-act="bt-skip" hover-class="hover">跳过</view>
+          <view wx:else class="btn primary" bindtap="onAct" data-act="close" hover-class="hover">继续</view>
+        </view>
+      </block>
+
+      <block wx:elif="{{modal.kind === 'report'}}">
+        <view class="modal-body">
+          <text class="eyebrow">{{modal.eyebrow}}</text>
+          <text class="modal-title brush">{{modal.date}}</text>
+          <view wx:for="{{modal.events}}" wx:key="index" class="notice"><text class="eyebrow seal-c">{{item.tag}}</text><text class="notice-h brush">{{item.title}}</text><text class="notice-t">{{item.text}}</text></view>
+          <text wx:if="{{modal.first}}" class="hint">建安五年之内，各路诸侯忙于自保，不会主动来犯；但你先打谁，谁就会还击。</text>
+          <view wx:else class="sec">
+            <text class="eyebrow">我方境内</text>
+            <view wx:for="{{modal.mine}}" wx:key="index" class="rep {{item.warn ? 'warn' : ''}}"><text class="kind k-{{item.kind}} brush">{{item.tag}}</text><text class="rep-t">{{item.text}}</text></view>
+            <text wx:if="{{!modal.mine.length}}" class="quiet">本季我方境内无事。</text>
+          </view>
+          <view wx:if="{{modal.others.length}}" class="more" bindtap="onAct" data-act="others"><text>{{modal.othersOpen ? '－' : '＋'}} 各方动向 {{modal.others.length}} 条</text></view>
+          <view wx:if="{{modal.othersOpen}}">
+            <view wx:for="{{modal.others}}" wx:key="index" class="rep other {{item.warn ? 'warn' : ''}}"><text class="kind k-{{item.kind}} brush">{{item.tag}}</text><text class="rep-t">{{item.text}}</text></view>
+          </view>
+        </view>
+        <view class="modal-actions"><view class="btn primary" bindtap="onAct" data-act="close" hover-class="hover">{{modal.button}}</view></view>
+      </block>
+
+      <block wx:elif="{{modal.kind === 'chronicle'}}">
+        <text class="eyebrow">史册</text>
+        <text class="modal-title brush">{{modal.title}}</text>
+        <view class="seg">
+          <view class="seg-b {{modal.mineOnly ? 'on' : ''}}" bindtap="onAct" data-act="chron" data-v="mine">我方与大事</view>
+          <view class="seg-b {{modal.mineOnly ? '' : 'on'}}" bindtap="onAct" data-act="chron" data-v="all">全部</view>
+        </view>
+        <view class="modal-body">
+          <text wx:if="{{!modal.groups.length}}" class="quiet">尚无记载。</text>
+          <view wx:for="{{modal.groups}}" wx:key="date" wx:for-item="g" class="chron-g">
+            <text class="chron-d">{{g.date}}</text>
+            <view wx:for="{{g.items}}" wx:key="index" class="rep {{item.mine ? '' : 'other'}} {{item.warn ? 'warn' : ''}}"><text class="kind k-{{item.kind}} brush">{{item.tag}}</text><text class="rep-t"><text wx:if="{{item.title}}" class="rep-title">{{item.title}}　</text>{{item.text}}</text></view>
+          </view>
+        </view>
+        <view class="modal-actions"><view class="btn primary" bindtap="onAct" data-act="close" hover-class="hover">合上史册</view></view>
+      </block>
+
+      <block wx:elif="{{modal.kind === 'over'}}">
+        <text class="eyebrow center">{{modal.date}}</text>
+        <text class="over-title brush">{{modal.title}}</text>
+        <text class="over-text">{{modal.text}}</text>
+        <view class="over-facts"><view wx:for="{{modal.facts}}" wx:key="k" class="fact"><text class="fact-v">{{item.v}}</text><text class="fact-k">{{item.k}}</text></view></view>
+        <view class="modal-actions center">
+          <view class="btn ghost" bindtap="onAct" data-act="close" hover-class="hover">再看看舆图</view>
+          <view class="btn primary" bindtap="onAct" data-act="restart" hover-class="hover">再开一局</view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view wx:if="{{toast}}" class="toast {{toast.tone}}" style="bottom: {{safeBottom + 16}}px;"><view class="chop brush">{{toast.chop}}</view><text class="toast-t">{{toast.text}}</text></view>
+</view>

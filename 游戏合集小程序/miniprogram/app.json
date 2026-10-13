@@ -1,0 +1,20 @@
+{
+  "pages": ["pages/home/index"],
+  "subPackages": [
+    { "root": "zhulu", "name": "zhulu", "pages": ["pages/game/index"] },
+    { "root": "sokoban", "name": "sokoban", "pages": ["pages/game/index"] }
+  ],
+  "preloadRule": {
+    "pages/home/index": { "network": "all", "packages": ["zhulu", "sokoban"] }
+  },
+  "window": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#E4E1DA",
+    "backgroundTextStyle": "dark"
+  },
+  "renderer": "webview",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

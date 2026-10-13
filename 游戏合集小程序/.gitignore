@@ -1,0 +1,4 @@
+.tools/
+.artifacts/
+node_modules/
+project.private.config.json

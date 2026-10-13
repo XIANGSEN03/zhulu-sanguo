@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>逐鹿三国</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header id="bar"></header>
+  <main id="stage">
+    <section id="board" aria-label="舆图">
+      <div id="mapscroll">
+        <svg id="map" viewBox="0 0 880 800" preserveAspectRatio="xMidYMid meet" role="group" aria-label="三国舆图，点城池查看"></svg>
+      </div>
+      <button id="view-toggle" class="view-toggle" data-act="view3d" hidden aria-pressed="false">沙盘</button>
+    </section>
+    <aside id="panel" aria-live="polite"></aside>
+  </main>
+</div>
+<section id="title" hidden></section>
+<section id="profile" hidden aria-label="武将"></section>
+<section id="scene" hidden aria-label="剧情"></section>
+<section id="siege" hidden aria-label="攻城"></section>
+<div id="overlay" hidden></div>
+<div id="toast" role="status"></div>
+<script src="data.js"></script>
+<script src="rules.js"></script>
+<script src="ai.js"></script>
+<script src="portraits.js"></script>
+<script src="lore.js"></script>
+<script src="立绘/faces.js"></script>
+<script src="story.js"></script>
+<script src="scene.js"></script>
+<script src="kit3d.js"></script>
+<script src="siege3d.js"></script>
+<script src="sandbox3d.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>

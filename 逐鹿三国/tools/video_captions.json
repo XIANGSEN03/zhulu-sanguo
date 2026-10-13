@@ -1,0 +1,14 @@
+[
+  { "id": "title",    "seal": "主", "eyebrow": "择一明主",   "text": "曹操、袁绍、孙策、刘备，四路诸侯任选，难度各不相同" },
+  { "id": "story",    "seal": "剧", "eyebrow": "剧情对白",   "text": "开局、破城、议事都有剧情：人物立绘登场，逐字说话" },
+  { "id": "brief",    "seal": "刘", "eyebrow": "本局",       "text": "这一局选刘备：只有徐州两城，强敌环伺，难度最高" },
+  { "id": "board",    "seal": "图", "eyebrow": "舆图",       "text": "二十二座城池、四方诸侯，一张舆图看尽天下" },
+  { "id": "sandbox",  "seal": "盘", "eyebrow": "3D 沙盘",    "text": "一键切成立体沙盘：山川河流、城楼旗帜，可拖可转可缩放" },
+  { "id": "order",    "seal": "令", "eyebrow": "出征",       "text": "点城、点将、定目标：关羽领兵八千，北取寿春" },
+  { "id": "siege",    "seal": "战", "eyebrow": "3D 攻城",    "text": "每次出征都演一场攻城：阵前单挑、箭雨火计、云梯冲车" },
+  { "id": "after",    "seal": "克", "eyebrow": "攻克",       "text": "寿春城破，城头换上刘字大旗" },
+  { "id": "council",  "seal": "谋", "eyebrow": "军师进言",   "text": "与军师议事：依计而行，或者另问别策" },
+  { "id": "profile",  "seal": "将", "eyebrow": "武将",       "text": "每位武将都有全身立绘、四维能力和生平" },
+  { "id": "audience", "seal": "召", "eyebrow": "召见",       "text": "召见武将，当面问话、当面下令" },
+  { "id": "gallery",  "seal": "英", "eyebrow": "群英",       "text": "曹魏、河北、刘备、江东，四十六位文臣武将，人人有立绘" }
+]

@@ -1,0 +1,76 @@
+<view class="game-page {{scenic ? 'scenic' : ''}}">
+  <canvas wx:if="{{canvasOn}}" id="scene" type="webgl" class="scene" style="top: {{sceneTop}}px; height: {{sceneHeight}}px;" hidden="{{sheetOpen || resultOpen || !!error}}" disable-scroll="{{true}}"
+    bindtouchstart="onSceneTouchStart" catchtouchmove="onSceneTouchMove"
+    bindtouchend="onSceneTouchEnd" bindtouchcancel="onSceneTouchCancel" />
+
+  <view class="hud-header" style="padding-top: {{navTop}}px;">
+    <view class="title-row" style="height: {{navHeight}}px; padding-right: {{capsuleSpace}}px;">
+      <view class="back" bindtap="onBack" hover-class="back-hover" aria-role="button" aria-label="返回游戏大厅">‹</view><text class="title">仓库推箱子</text><text class="badge">3D</text>
+    </view>
+    <view class="order-panel panel" wx:if="{{!scenic}}">
+      <view class="order-line"><text class="eyebrow">上架单</text><text class="order-no">{{orderNo}}</text><text class="order-name">{{orderName}}</text></view>
+      <view class="stats">
+        <view class="stat"><text class="stat-label">步数</text><text class="stat-value">{{moves}}</text></view>
+        <view class="stat"><text class="stat-label">推货</text><text class="stat-value">{{pushes}}</text></view>
+        <view class="stat"><text class="stat-label">已上架</text><text class="stat-value {{placed === total ? 'done' : ''}}">{{placed}}/{{total}}</text></view>
+        <view class="stat"><text class="stat-label">标准步数</text><text class="stat-value">{{standard}}</text></view>
+      </view>
+    </view>
+    <view class="tools panel">
+      <button id="open-orders" class="tool" bindtap="onOpenOrders" disabled="{{!ready}}">选单</button>
+      <button class="tool" bindtap="onToggleSky" disabled="{{!ready}}">{{skyLabel}}</button>
+      <button id="overhead-view" class="tool {{overhead ? 'selected' : ''}}" bindtap="onToggleOverhead" disabled="{{!ready}}">俯视</button>
+      <button class="tool {{scenic ? 'selected' : ''}}" bindtap="onToggleScenic" disabled="{{!ready}}">{{scenic ? '回游戏' : '风景'}}</button>
+      <button class="tool" bindtap="onToggleSound">声音{{sound ? '开' : '关'}}</button>
+    </view>
+  </view>
+
+  <view class="hud-footer" style="padding-bottom: {{safeBottom}}px;">
+    <view class="toast" wx:if="{{toast && !scenic && !resultOpen}}">{{toast}}</view>
+    <view class="scenic-actions" wx:if="{{scenic}}">
+      <text class="scenic-tip">拖动看风景 · 双指缩放</text>
+      <button class="primary scenic-back" bindtap="onToggleScenic">回到游戏</button>
+    </view>
+    <block wx:else>
+      <view class="actions panel">
+        <button bindtap="onPrevious" disabled="{{!ready || levelIndex === 0}}">上一单</button>
+        <button bindtap="onUndo" disabled="{{!ready || !canUndo}}">撤销</button>
+        <button id="restart-order" bindtap="onRestart" disabled="{{!ready}}">重来</button>
+        <button bindtap="onNext" disabled="{{!ready || levelIndex === levelCount - 1}}">下一单</button>
+      </view>
+      <view class="dpad panel">
+        <view class="dpad-row"><button class="dir" data-dir="0" bindtouchstart="onDirectionStart" bindtouchend="onDirectionEnd" bindtouchcancel="onDirectionEnd" disabled="{{!ready || won}}">↑</button></view>
+        <view class="dpad-row"><button class="dir" data-dir="2" bindtouchstart="onDirectionStart" bindtouchend="onDirectionEnd" bindtouchcancel="onDirectionEnd" disabled="{{!ready || won}}">←</button><button class="dir" data-dir="1" bindtouchstart="onDirectionStart" bindtouchend="onDirectionEnd" bindtouchcancel="onDirectionEnd" disabled="{{!ready || won}}">↓</button><button class="dir" data-dir="3" bindtouchstart="onDirectionStart" bindtouchend="onDirectionEnd" bindtouchcancel="onDirectionEnd" disabled="{{!ready || won}}">→</button></view>
+      </view>
+      <view class="footer-note"><text>滑动走路 · 双指转视角、缩放</text><button class="reset-view" bindtap="onResetView" disabled="{{!ready}}">复位视角</button></view>
+    </block>
+  </view>
+
+  <view class="loading-mask" wx:if="{{!ready}}">
+    <view class="loading-card panel"><text class="loading-title">{{error ? '仓库暂未打开' : '仓库推箱子 3D'}}</text><text class="loading-message">{{error || loading}}</text></view>
+  </view>
+
+  <view class="overlay sheet" wx:if="{{sheetOpen}}" bindtap="onCloseOrders" catchtouchmove="noop">
+    <view class="sheet-card" catchtap="noop">
+      <view class="sheet-head"><text class="sheet-title">上架单</text><text class="progress">已完成 {{completed}} / {{levelCount}}</text><button class="close" bindtap="onCloseOrders">关闭</button></view>
+      <scroll-view class="orders" scroll-y="{{true}}" scroll-into-view="order-{{levelIndex}}">
+        <button wx:for="{{orders}}" wx:key="i" id="order-{{item.i}}" class="order-button {{item.current ? 'current' : ''}}" data-index="{{item.i}}" bindtap="onChooseOrder">
+          <text class="list-no">{{item.no}}</text><view class="list-body"><text class="list-name">{{item.name}}</text><text class="list-best">{{item.best ? '最好 ' + item.best + ' 步 / ' : ''}}标准 {{item.standard}} 步</text></view><text class="list-stars">{{item.stars}}</text>
+        </button>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view class="overlay win" wx:if="{{resultOpen}}" catchtouchmove="noop">
+    <view class="win-card">
+      <text class="win-order">上架单 {{orderNo}} · {{total}} 托</text>
+      <text class="win-title">{{result.title}}</text>
+      <view class="stamp"><text>已上架</text><text class="stamp-date">{{result.date}}</text></view>
+      <view class="win-figures"><view class="figure"><text class="figure-label">你用的步数</text><text class="figure-value">{{result.moves}}</text></view><view class="figure"><text class="figure-label">标准步数</text><text class="figure-value">{{result.standard}}</text></view></view>
+      <view class="rating"><text class="stars">{{result.stars}}</text><text>{{result.rating}}</text></view>
+      <text class="win-note">{{result.note}}</text>
+      <view class="win-actions"><button bindtap="onLookAround">看看现场</button><button bindtap="onRestart">再做一遍</button><button class="primary" bindtap="onNext" disabled="{{result.last}}">{{result.last ? '最后一单' : '下一单'}}</button></view>
+      <button class="win-undo" bindtap="onUndo">撤销最后一步</button>
+    </view>
+  </view>
+</view>

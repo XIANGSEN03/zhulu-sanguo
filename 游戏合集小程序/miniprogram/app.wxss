@@ -1,0 +1,2 @@
+/* 全局只放最基本的盒模型；每个游戏的样式写在自己的页面里，互不影响 */
+view, text, scroll-view, button { box-sizing: border-box; }

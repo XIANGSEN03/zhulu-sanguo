@@ -1,0 +1,32 @@
+<view class="home" style="padding-top: {{navTop}}px; padding-bottom: {{safeBottom + 16}}px;">
+  <view class="head" style="height: {{navHeight}}px; padding-right: {{capsuleSpace}}px;"><text class="eyebrow">游戏厅</text></view>
+  <text class="h1">今天玩哪一局</text>
+
+  <view class="card zl" bindtap="go" data-url="/zhulu/pages/game/index" hover-class="press" aria-role="button" aria-label="逐鹿三国">
+    <view class="zl-top">
+      <text class="zl-name brush">逐鹿</text>
+      <view class="zl-seal brush"><text>三</text><text>国</text></view>
+      <view class="flags"><view wx:for="{{flags}}" wx:key="id" class="flag f-{{item.id}} {{zhulu.owner === item.id ? 'mine' : ''}}"><text>{{item.mark}}</text></view></view>
+    </view>
+    <text class="zl-tag">回合制势力争霸 · 建安五年 官渡前夜</text>
+    <text class="zl-desc">选一位君主，每季给武将下令：开发、征兵、出征、招揽人才。先得 15 城者胜。</text>
+    <view class="zl-foot"><text class="zl-state">{{zhulu.text}}</text><text class="go">›</text></view>
+  </view>
+
+  <view class="card sk" bindtap="go" data-url="/sokoban/pages/game/index" hover-class="press" aria-role="button" aria-label="仓库推箱子 3D">
+    <view class="sk-top"><text class="sk-name">仓库推箱子</text><text class="sk-badge">3D</text></view>
+    <text class="sk-tag">17 张上架单 · 只能推，不能拉</text>
+    <!-- 一排小格子示意：墙、工人推着纸箱、黄框库位 -->
+    <view class="sk-art">
+      <view class="cell wall"></view><view class="cell"></view><view class="cell"><view class="worker"></view></view>
+      <view class="cell"><view class="crate"></view></view><view class="cell"><text class="arrow">›</text></view>
+      <view class="cell"><view class="spot"></view></view><view class="cell wall"></view>
+    </view>
+    <view class="sk-foot">
+      <view class="sk-bar"><view class="sk-bar-i" style="width: {{sokoban.pct}}%;"></view></view>
+      <view class="sk-row"><text class="sk-state">{{sokoban.text}}</text><text class="go">›</text></view>
+    </view>
+  </view>
+
+  <text class="note">两个都是单机游戏，进度只存在这台手机上。</text>
+</view>
